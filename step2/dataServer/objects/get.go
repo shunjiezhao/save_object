@@ -8,9 +8,8 @@ import (
 	"strings"
 )
 
-func get(w http.ResponseWriter, r *http.Request) {
-	f, e := os.Open("." + "/objects/" +
-		strings.Split(r.URL.EscapedPath(), "/")[2])
+func get(w http.ResponseWriter, r *http.Request, path string) {
+	f, e := os.Open(path + strings.Split(r.URL.EscapedPath(), "/")[2])
 	if e != nil {
 		log.Println(e)
 		w.WriteHeader(http.StatusNotFound)

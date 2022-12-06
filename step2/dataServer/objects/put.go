@@ -8,9 +8,8 @@ import (
 	"strings"
 )
 
-func put(w http.ResponseWriter, r *http.Request) {
-	f, e := os.Create("." + "/objects/" +
-		strings.Split(r.URL.EscapedPath(), "/")[2])
+func put(w http.ResponseWriter, r *http.Request, path string) {
+	f, e := os.Create(path + strings.Split(r.URL.EscapedPath(), "/")[2])
 	if e != nil {
 		log.Println(e)
 		w.WriteHeader(http.StatusInternalServerError)

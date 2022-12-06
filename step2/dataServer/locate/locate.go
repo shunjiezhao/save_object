@@ -2,16 +2,18 @@ package locate
 
 import (
 	"ch2/lib/rabbitmq"
+	"log"
 	"os"
 	"strconv"
 )
 
 func Locate(name string) bool {
+	log.Println(name)
 	_, err := os.Stat(name)
-	return !os.IsNotExist(err)
+	return err == nil || !os.IsNotExist(err)
 }
 
-func StartLocate() {
+func StartLocate(path, addr string) {
 	q := rabbitmq.New(os.Getenv("RABBITMQ_SERVER"))
 	defer q.Close()
 	q.Bind("dataServers")
@@ -21,8 +23,10 @@ func StartLocate() {
 		if e != nil {
 			panic(e)
 		}
-		if Locate("." + "/objects/" + object) {
-			q.Send(msg.ReplyTo, os.Getenv("LISTEN_ADDRESS"))
+		log.Println(path)
+		if Locate(path + object) {
+			println(msg.ReplyTo)
+			q.Send(msg.ReplyTo, addr)
 		}
 	}
 }

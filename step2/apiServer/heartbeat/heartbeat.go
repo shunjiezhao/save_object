@@ -44,6 +44,7 @@ func removeExpiredDataServer() {
 	}
 }
 
+// 返回所有沒有過期的
 func GetDataServers() []string {
 	mutex.Lock()
 	defer mutex.Unlock()
