@@ -22,6 +22,7 @@ func GetOffsetFromHeader(h http.Header) int64 {
 	return offset
 }
 
+// digest: SHA-256=
 func GetHashFromHeader(h http.Header) string {
 	digest := h.Get("digest")
 	if len(digest) < 9 {
@@ -34,8 +35,8 @@ func GetHashFromHeader(h http.Header) string {
 }
 
 func GetSizeFromHeader(h http.Header) int64 {
-	size, _ := strconv.ParseInt(h.Get("content-length"), 0, 64)
-	return size
+	i, _ := strconv.ParseInt(h.Get("Content-Length"), 0, 64)
+	return i
 }
 
 func CalculateHash(r io.Reader) string {

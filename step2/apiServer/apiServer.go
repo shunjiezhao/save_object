@@ -4,6 +4,7 @@ import (
 	"ch2/apiServer/heartbeat"
 	"ch2/apiServer/locate"
 	"ch2/apiServer/objects"
+	"ch2/versions"
 	"flag"
 	"log"
 	"net/http"
@@ -16,7 +17,7 @@ var (
 )
 
 func main() {
-	flag.StringVar(&port, "port", "localhost:9001", "port")
+	flag.StringVar(&port, "port", "9001", "port")
 	flag.Parse()
 	log.SetFlags(log.Llongfile)
 	// api 层 需要了解下面的数据层 有哪些可用，那些不可用
@@ -24,8 +25,9 @@ func main() {
 	go heartbeat.ListenHeartbeat()
 	http.HandleFunc("/objects/", objects.Handler)
 	http.HandleFunc("/locate/", locate.Handler)
+	http.HandleFunc("/versions/", versions.Handler)
+
 	println(Addr)
 	os.MkdirAll("./objects", 0666)
-
 	log.Fatal(http.ListenAndServe(Addr, nil))
 }
