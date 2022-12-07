@@ -7,11 +7,13 @@ import (
 	"strings"
 )
 
+// 缓冲上传流
 type TempPutStream struct {
 	Server string
 	Uuid   string
 }
 
+// 传入对象名字 内部得到 uuid
 func NewTempPutStream(server, object string, size int64) (*TempPutStream, error) {
 	request, e := http.NewRequest("POST", "http://"+server+"/temp/"+object, nil)
 	if e != nil {

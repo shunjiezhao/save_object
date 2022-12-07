@@ -16,6 +16,7 @@ func NewEncoder(writers []io.Writer) *encoder {
 	return &encoder{writers, enc, nil}
 }
 
+// 将cache 填充满 然后刷新到各个服务中
 func (e *encoder) Write(p []byte) (n int, err error) {
 	length := len(p)
 	current := 0
@@ -38,6 +39,7 @@ func (e *encoder) Write(p []byte) (n int, err error) {
 	return len(p), nil
 }
 
+//先编码成多个片，然后进行刷新
 func (e *encoder) Flush() {
 	if len(e.cache) == 0 {
 		return

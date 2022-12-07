@@ -54,6 +54,7 @@ func (s *RSGetStream) Close() {
 	}
 }
 
+// 读取到那个位置
 func (s *RSGetStream) Seek(offset int64, whence int) (int64, error) {
 	if whence != io.SeekCurrent {
 		panic("only support SeekCurrent")

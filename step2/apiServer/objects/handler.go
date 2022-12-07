@@ -11,6 +11,10 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		put(w, r)
 		return
 	}
+	if m == http.MethodPost {
+		post(w, r)
+		return
+	}
 	if m == http.MethodGet {
 		get(w, r)
 		return

@@ -4,6 +4,7 @@ import (
 	"ch2/apiServer/heartbeat"
 	"ch2/apiServer/locate"
 	"ch2/apiServer/objects"
+	"ch2/apiServer/temp"
 	"ch2/versions"
 	"flag"
 	"log"
@@ -24,6 +25,7 @@ func main() {
 	Addr = "localhost:" + port
 	go heartbeat.ListenHeartbeat()
 	http.HandleFunc("/objects/", objects.Handler)
+	http.HandleFunc("/temp/", temp.Handler)
 	http.HandleFunc("/locate/", locate.Handler)
 	http.HandleFunc("/versions/", versions.Handler)
 
