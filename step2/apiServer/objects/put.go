@@ -18,7 +18,8 @@ func put(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("没有设置hash值"))
 		return
 	}
-	c, e := storeObject(r.Body, url.PathEscape(hash))
+	size := utils.GetSizeFromHeader(r.Header)
+	c, e := storeObject(r.Body, url.PathEscape(hash), size)
 	if e != nil {
 		log.Println("存储失败", e.Error())
 		w.WriteHeader(http.StatusBadRequest)
@@ -29,8 +30,8 @@ func put(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(c)
 		return
 	}
+
 	name := strings.Split(r.URL.EscapedPath(), "/")[2]
-	size := utils.GetSizeFromHeader(r.Header)
 	e = es.AddVersion(name, hash, size)
 	if e != nil {
 		log.Println("版本增加失败: ", e.Error())

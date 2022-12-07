@@ -3,8 +3,10 @@ package utils
 import (
 	"crypto/sha256"
 	"encoding/base64"
+	"encoding/hex"
 	"io"
 	"net/http"
+	path2 "path"
 	"strconv"
 	"strings"
 )
@@ -41,6 +43,11 @@ func GetSizeFromHeader(h http.Header) int64 {
 
 func CalculateHash(r io.Reader) string {
 	h := sha256.New()
-	io.Copy(h, r)
-	return base64.StdEncoding.EncodeToString(h.Sum(nil))
+	readAll, _ := io.ReadAll(r)
+	h.Write(readAll)
+	// 注意需要先将byte转换为16进制表示
+	return base64.StdEncoding.EncodeToString([]byte(hex.EncodeToString(h.Sum(nil))))
+}
+func SetAddr(addr string) (string, string) {
+	return path2.Join(addr, "temp"), path2.Join(addr, "objects")
 }

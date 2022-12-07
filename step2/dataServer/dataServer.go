@@ -4,11 +4,12 @@ import (
 	"ch2/dataServer/heartbeat"
 	"ch2/dataServer/locate"
 	"ch2/dataServer/objects"
+	"ch2/dataServer/temp"
 	"flag"
 	"fmt"
 	"log"
 	"net/http"
-	"os"
+	path2 "path"
 	"strings"
 )
 
@@ -18,15 +19,19 @@ var (
 )
 
 func main() {
-	flag.StringVar(&port, "port", "localhost:9001", "port")
+	flag.StringVar(&port, "port", "9002", "port")
 	flag.Parse()
 	log.SetFlags(log.Llongfile)
 	Addr := "localhost:" + port
 	path := "./store" + fmt.Sprintf("/objects_%s/", strings.Split(Addr, ":")[1])
-	os.MkdirAll(path, 0666)
 	objects.SetAddr(path)
+	temp.SetAddr(path)
+
+	objPath := path2.Join(path, "objects")
 	go heartbeat.StartHeartbeat(Addr)
-	go locate.StartLocate(path, Addr)
+	go locate.StartLocate(Addr)
+	go locate.Collections(objPath)
 	http.HandleFunc("/objects/", objects.Handler)
+	http.HandleFunc("/temp/", temp.Handler)
 	log.Fatal(http.ListenAndServe(Addr, nil))
 }
