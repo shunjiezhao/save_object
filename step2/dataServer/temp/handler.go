@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	path2 "path"
 	"strconv"
@@ -26,6 +27,18 @@ var (
 
 func SetAddr(addr string) {
 	tmpPath, dataPath = utils.SetAddr(addr)
+}
+
+func (t tempInfo) hash() string {
+	s := strings.Split(t.Name, ".")[0]
+	log.Println(t.Name, "得到 HASH", s)
+	return s
+}
+
+func (t tempInfo) id() int {
+	s, _ := strconv.Atoi(strings.Split(t.Name, ".")[1])
+	log.Println(t.Name, "得到 id", s)
+	return s
 }
 
 // 将元数据保存文件
@@ -85,14 +98,14 @@ func post(w http.ResponseWriter, r *http.Request) {
 	infoFile := InfoFileName(uuid)
 	err = t.WriteToFile(infoFile)
 	if err != nil {
-		log.Print("uuid:%s name:%s 写入文件失败\n", t.Uuid, t.Name)
+		log.Printf("uuid:%s name:%s 写入文件失败\n", t.Uuid, t.Name)
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("内部错误"))
 		return
 	}
 	f, err := os.Create(infoFile + ".dat")
 	if err != nil {
-		log.Print("uuid:%s name:%s 创建文件失败\n", t.Uuid, t.Name)
+		log.Printf("uuid:%s name:%s 创建文件失败\n", t.Uuid, t.Name)
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("内部错误"))
 		return
@@ -147,11 +160,15 @@ func put(w http.ResponseWriter, r *http.Request) {
 }
 
 func commitTempObject(file string, t *tempInfo) {
-	err := os.Rename(file, DataFileName(t.Name))
+	f, _ := os.Open(file)
+	d := url.PathEscape(utils.CalculateHash(f))
+	f.Close()
+
+	err := os.Rename(file, DataFileName(t.Name)+"."+d+".dat")
 	if err != nil {
 		log.Println(err)
 	}
-	locate.Add(DataFileName(t.Name))
+	locate.Add(t.hash(), t.id())
 }
 
 func InfoFileName(uuid string) string {

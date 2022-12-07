@@ -1,9 +1,9 @@
 package rs
 
 import (
+	"ch2/lib/objectstream"
 	"fmt"
 	"io"
-	"lib/objectstream"
 )
 
 type RSPutStream struct {
@@ -11,11 +11,11 @@ type RSPutStream struct {
 }
 
 func NewRSPutStream(dataServers []string, hash string, size int64) (*RSPutStream, error) {
-	if len(dataServers) != ALL_SHARDS {
+	if len(dataServers) != ALL_SHARDS { // 不够
 		return nil, fmt.Errorf("dataServers number mismatch")
 	}
 
-	perShard := (size + DATA_SHARDS - 1) / DATA_SHARDS
+	perShard := (size + DATA_SHARDS - 1) / DATA_SHARDS // 每一个数据片的大小 上取整
 	writers := make([]io.Writer, ALL_SHARDS)
 	var e error
 	for i := range writers {

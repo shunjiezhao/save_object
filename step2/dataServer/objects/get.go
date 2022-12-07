@@ -2,13 +2,16 @@ package objects
 
 import (
 	"ch2/dataServer/locate"
-	"ch2/lib/utils"
+	"crypto/sha256"
+	"encoding/base64"
+	"encoding/hex"
 	"io"
 	"log"
 	"net/http"
 	"net/url"
 	"os"
 	path2 "path"
+	"path/filepath"
 	"strings"
 )
 
@@ -19,28 +22,35 @@ func get(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	sendFile(f, w)
-
+	sendFile(w, f)
 }
-func sendFile(fileName string, w http.ResponseWriter) {
+func sendFile(w io.Writer, fileName string) {
 	file, _ := os.Open(fileName)
 	log.Println(fileName)
 	defer file.Close()
 	io.Copy(w, file)
 }
-func getFile(hash string) string {
+func getFile(name string) string {
 	//TODO:将这块改l
-	file := path2.Join(dataPath, hash)
-	log.Println("get file:", file)
+	filePath := path2.Join(dataPath, name)
+	log.Println("get file:", filePath)
+	files, _ := filepath.Glob(filePath + ".*")
+	if len(files) != 1 {
+		return ""
+	}
 
-	f, _ := os.Open(file)
-	defer f.Close()
+	file := files[0]
+	log.Println("find file name", file)
+	h := sha256.New()
+	sendFile(h, file)
+
 	//保障 得到的 hash 一致
 	// 防止数据在我们这里受损
-	d := url.PathEscape(utils.CalculateHash(f))
+	d := url.PathEscape(base64.StdEncoding.EncodeToString([]byte(hex.EncodeToString(h.Sum(nil)))))
+	hash := strings.Split(file, ".")[2]
 	if d != hash {
 		log.Println("object hash mismatch, remove ", file)
-		locate.Del(hash)
+		locate.Del(name)
 		os.Remove(file)
 	}
 	return file

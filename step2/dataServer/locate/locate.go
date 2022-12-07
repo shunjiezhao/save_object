@@ -2,27 +2,34 @@ package locate
 
 import (
 	"ch2/lib/rabbitmq"
+	"ch2/lib/types"
 	"log"
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"sync"
 )
 
 var objects = make(map[string]int) // 一次扫描 全部放入
 var mutex sync.RWMutex
 
-func Locate(name string) (ok bool) {
-	log.Println(name)
+//我们的 Locate 函数不仅要告知某个对象是否存在，同时还需要告知
+//本节点保存的是该对象哪个分片
+func Locate(name string) int {
 	mutex.RLock()
-	_, ok = objects[name]
+	id, ok := objects[name]
 	mutex.RUnlock()
-	return
+	log.Println(name, id)
+	if !ok {
+		return -1
+	}
+	return id
 }
 
-func Add(name string) {
+func Add(name string, id int) {
 	mutex.Lock()
-	objects[name] = 1
+	objects[name] = id
 	mutex.Unlock()
 }
 
@@ -41,9 +48,9 @@ func StartLocate(addr string) {
 		if e != nil {
 			panic(e)
 		}
-		if Locate(object) {
+		if id := Locate(object); id != -1 {
 			println(msg.ReplyTo)
-			q.Send(msg.ReplyTo, addr)
+			q.Send(msg.ReplyTo, types.LocateMessage{Addr: addr, Id: id})
 		}
 	}
 }
@@ -52,7 +59,9 @@ func StartLocate(addr string) {
 func Collections(path string) {
 	files, _ := filepath.Glob(path + "/*")
 	for _, file := range files {
-		hash := filepath.Base(file)
-		objects[hash] = 1
+		s := strings.Split(filepath.Base(file), ".") // hash.x.ihash
+		i, _ := strconv.ParseInt(s[1], 10, 64)
+		log.Println("add file", s[0], " ", i)
+		objects[s[0]] = int(i)
 	}
 }

@@ -32,18 +32,26 @@ func get(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	if meta.Hash == "" { //删除标记
+	hash := meta.Hash
+	if hash == "" { //删除标记
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
 	}
 
-	object := url.PathEscape(meta.Hash) // 转义
-	stream, e := getStream(object)      // 得到从 dataServer请求回来的数据
+	hash = url.PathEscape(hash)             // 转义
+	stream, e := GetStream(hash, meta.Size) // 得到从 dataServer请求回来的数据
 	if e != nil {
 		log.Println(e)
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
+	_, e = io.Copy(w, stream)
+	if e != nil {
+		log.Println(e)
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	stream.Close()
+
 	w.WriteHeader(http.StatusOK)
-	io.Copy(w, stream)
 }

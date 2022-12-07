@@ -11,7 +11,6 @@ import (
 )
 
 func storeObject(r io.Reader, hash string, size int64) (int, error) {
-
 	if locate.Exist(url.PathEscape(hash)) {
 		return http.StatusOK, nil
 	}
@@ -25,7 +24,7 @@ func storeObject(r io.Reader, hash string, size int64) (int, error) {
 	//重点
 	reader := io.TeeReader(r, stream) // tee 将 r -> stream,reader
 	d := utils.CalculateHash(reader)
-	log.Println(d)
+	log.Println("hash", d)
 	if d != hash {
 		stream.Commit(false)
 		return http.StatusBadRequest, fmt.Errorf("检查Digest")

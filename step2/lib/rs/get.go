@@ -1,9 +1,9 @@
 package rs
 
 import (
+	"ch2/lib/objectstream"
 	"fmt"
 	"io"
-	"lib/objectstream"
 )
 
 type RSGetStream struct {
@@ -29,6 +29,7 @@ func NewRSGetStream(locateInfo map[int]string, dataServers []string, hash string
 		}
 	}
 
+	// 恢复 重新上传
 	writers := make([]io.Writer, ALL_SHARDS)
 	perShard := (size + DATA_SHARDS - 1) / DATA_SHARDS
 	var e error

@@ -2,6 +2,7 @@ package objects
 
 import (
 	"ch2/apiServer/heartbeat"
+	"ch2/lib/rs"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -14,14 +15,15 @@ type TempPutStream struct {
 	Uuid   string
 }
 
-func putStream(object string, size int64) (*TempPutStream, error) {
-	server := heartbeat.ChooseRandomDataServer()
-	if server == "" {
-		return nil, fmt.Errorf("cannot find any dataServer")
+func putStream(object string, size int64) (*rs.RSPutStream, error) {
+	// 最少 all 个，因为我们这是上传
+	servers := heartbeat.ChooseRandomDataServer(rs.ALL_SHARDS, nil)
+	if len(servers) == 0 {
+		return nil, fmt.Errorf("cannot find enough dataServer")
 	}
-	return NewTempPutStream(server, object, size)
+	return rs.NewRSPutStream(servers, object, size)
 }
-func NewTempPutStream(server, hash string, size int64) (*TempPutStream, error) {
+func NewTempPutStream(server string, hash string, size int64) (*TempPutStream, error) {
 	// http:
 	request, err := http.NewRequest("POST", "http://"+server+"/temp/"+hash, nil)
 	if err != nil {
