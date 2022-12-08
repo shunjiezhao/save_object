@@ -81,7 +81,7 @@ func (s *RSResumablePutStream) CurrentSize() int64 {
 		log.Println(r.StatusCode)
 		return -1
 	}
-	size := utils.GetOffsetFromHeader(r.Header) * DATA_SHARDS
+	size := utils.GetSizeFromHeader(r.Header) * DATA_SHARDS
 	if size > s.Size {
 		size = s.Size
 	}

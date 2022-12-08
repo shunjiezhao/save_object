@@ -62,6 +62,7 @@ func Collections(path string) {
 		s := strings.Split(filepath.Base(file), ".") // hash.x.ihash
 		i, _ := strconv.ParseInt(s[1], 10, 64)
 		log.Println("add file", s[0], " ", i)
-		objects[s[0]] = int(i)
+		s[0] = strings.Trim(s[0], " ")
+		Add(s[0], int(i))
 	}
 }

@@ -29,18 +29,20 @@ func post(w http.ResponseWriter, r *http.Request) {
 	infoFile := InfoFileName(uuid)
 	err = t.WriteToFile(infoFile)
 	if err != nil {
-		log.Printf("uuid:%s name:%s 写入文件失败\n", t.Uuid, t.Name)
+		log.Printf("uuid:%s name:%s 写入文件失败: %s\n", t.Uuid, t.Name, err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("内部错误"))
 		return
 	}
+	log.Printf("uuid:%s name:%s 创建info文件: %s\n", t.Uuid, t.Name, infoFile)
 	f, err := os.Create(infoFile + ".dat")
 	if err != nil {
-		log.Printf("uuid:%s name:%s 创建文件失败\n", t.Uuid, t.Name)
+		log.Printf("uuid:%s name:%s 创建文件失败 %s\n", t.Uuid, t.Name, err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("内部错误"))
 		return
 	}
-	defer f.Close()
+	log.Printf("uuid:%s name:%s 创建dat文件: %s\n", t.Uuid, t.Name, infoFile+".dat")
+	f.Close()
 	w.Write([]byte(uuid))
 }

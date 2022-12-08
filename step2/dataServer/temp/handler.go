@@ -91,10 +91,10 @@ func head(w http.ResponseWriter, r *http.Request) {
 	uuid := strings.Split(r.URL.EscapedPath(), "/")[2]
 	f, err := os.Open(tmpCacheFileName(uuid))
 	if err != nil {
-		log.Println("打开 缓存中的uuid文件失败：", err.Error())
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
+	log.Println("打开 缓存中的uuid: %s 文件success：", tmpCacheFileName(uuid))
 	defer f.Close()
 	info, err := f.Stat()
 	if err != nil {
@@ -102,6 +102,7 @@ func head(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
+	log.Println("获取%s成功", info.Name())
 	w.Header().Set("Content-Length", fmt.Sprintf("%d", info.Size()))
 }
 

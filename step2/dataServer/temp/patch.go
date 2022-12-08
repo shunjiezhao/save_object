@@ -22,7 +22,7 @@ func patch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	dateFile := t.dataFile()
-	file, err := os.OpenFile(dateFile, os.O_WRONLY|os.O_APPEND, 0)
+	file, err := os.OpenFile(dateFile, os.O_WRONLY|os.O_APPEND, 0777)
 	if err != nil {
 		log.Println("打开文件失败", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
